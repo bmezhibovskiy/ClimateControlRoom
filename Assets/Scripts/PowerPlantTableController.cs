@@ -105,7 +105,6 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
 
     private List<PPRowData> GetFilteredRows() {        
         double? goalTemperature = (double?)graphController.GetGoalTemperature();
-        Debug.Log(goalTemperature);
         if(goalTemperature != null && (oldGoalTemp == null || oldGoalTemp != goalTemperature)) {
             oldGoalTemp = goalTemperature;   
             rows.Sort();
