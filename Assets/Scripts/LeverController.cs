@@ -15,6 +15,8 @@ public class LeverController : MonoBehaviour {
     public VRBasics_Grabbable goalLeverGrabbable;
     private VRBasics_Hinge goalHinge;
 
+
+
     void Start () {
         taxHinge = taxLever.hinge.GetComponent<VRBasics_Hinge>();
         goalHinge = goalLever.hinge.GetComponent<VRBasics_Hinge>();

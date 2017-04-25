@@ -5,14 +5,10 @@ using UnityEngine;
 public class GraphController : MonoBehaviour {
 
     public GameObject emptyGraphPrefab;
-    public CarbonTaxController carbonTaxController;
 
     public GameObject earthHalo;
     public float maxAlpha = 0.16f;
-
-    public VRBasics_Lever goalLever;
-    public VRBasics_Grabbable goalLeverGrabbable;
-
+    
     public WMG_Axis_Graph graph;
 
     public WMG_Series series;
@@ -23,13 +19,10 @@ public class GraphController : MonoBehaviour {
     public const float highestTemp = 45.0f;
     private float? goalTemp;
 
-    private VRBasics_Hinge hinge;
-
     public string dataPath;
 
 	// Use this for initialization
 	void Start () {
-        hinge = goalLever.hinge.GetComponent<VRBasics_Hinge>();
 
         GameObject graphGO = GameObject.Instantiate(emptyGraphPrefab);
         graphGO.transform.SetParent(this.transform, false);
