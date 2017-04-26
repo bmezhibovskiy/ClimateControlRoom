@@ -9,8 +9,11 @@ public class RoomController : MonoBehaviour {
     const float maxDPS = 20f;
     const float minDPS = -20f;
     
-    public VRBasics_Slider speedSlider;
-    public VRBasics_Grabbable speedSliderGrabbable;
+    public VRBasics_Slider xSpeedSlider;
+    public VRBasics_Grabbable xSpeedSliderGrabbable;
+
+    public VRBasics_Slider zSpeedSlider;
+    public VRBasics_Grabbable zSpeedSliderGrabbable;
 
     // Use this for initialization
     void Start () {
@@ -19,11 +22,20 @@ public class RoomController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        float speedOffset = 0.0f;
-        if(speedSliderGrabbable.GetIsGrabbed()) {
-            speedOffset = Mathf.Lerp(minDPS, maxDPS, speedSlider.percentage);
+        float xSpeedOffset = 0.0f;
+        if(xSpeedSliderGrabbable.GetIsGrabbed()) {
+            xSpeedOffset = Mathf.Lerp(minDPS, maxDPS, xSpeedSlider.percentage);
+            Debug.Log("X: " + xSpeedSlider.percentage);
         }
-        speedSlider.SetSpring();
-        transform.Rotate(Vector3.right * (speedOffset + degreesPerSecond) * Time.deltaTime);
-	}
+        xSpeedSlider.SetSpring();
+        transform.Rotate(Vector3.right * (xSpeedOffset + degreesPerSecond) * Time.deltaTime);
+
+        float zSpeedOffset = 0.0f;
+        if(zSpeedSliderGrabbable.GetIsGrabbed()) {
+            zSpeedOffset = Mathf.Lerp(minDPS, maxDPS, zSpeedSlider.percentage);
+            Debug.Log("Z: " + zSpeedSlider.percentage);
+        }
+        zSpeedSlider.SetSpring();
+        transform.Rotate(Vector3.forward * (zSpeedOffset + degreesPerSecond) * Time.deltaTime);
+    }
 }

@@ -2,24 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct WarmingFactor {
+    string type;
+    VRBasics_Lever lever;
+    VRBasics_Grabbable grabbable;
+    VRBasics_Hinge hinge;
+    public WarmingFactor(string type, VRBasics_Lever lever, VRBasics_Grabbable grabbable, VRBasics_Hinge hinge) {
+        this.type = type;
+        this.lever = lever;
+        this.grabbable = grabbable;
+        this.hinge = hinge;
+    }
+}
+
 public class LeverController : MonoBehaviour {
 
     public CarbonTaxController carbonTaxController;
     public GraphController graphController;
-
+    
+    public int taxPriority;
     public VRBasics_Lever taxLever;
     public VRBasics_Grabbable taxLeverGrabbable;
     private VRBasics_Hinge taxHinge;
+
+    public int coalPriority;
+    public VRBasics_Lever coalLever;
+    public VRBasics_Grabbable coalLeverGrabbable;
+    private VRBasics_Hinge coalHinge;
 
     public VRBasics_Lever goalLever;
     public VRBasics_Grabbable goalLeverGrabbable;
     private VRBasics_Hinge goalHinge;
 
+    private List<WarmingFactor> factors;
+
+    private const int numFactors = 2; //Change this every time a factor is added
+
 
 
     void Start () {
         taxHinge = taxLever.hinge.GetComponent<VRBasics_Hinge>();
+        coalHinge = coalLever.hinge.GetComponent<VRBasics_Hinge>();
         goalHinge = goalLever.hinge.GetComponent<VRBasics_Hinge>();
+
+        factors = new List<WarmingFactor>(numFactors);
+        factors.Insert(taxPriority, new WarmingFactor("tax", taxLever, taxLeverGrabbable, taxHinge));
+        factors.Insert(coalPriority, new WarmingFactor("coal", coalLever, coalLeverGrabbable, coalHinge));
     }
 
 	void LateUpdate () {
@@ -55,6 +83,13 @@ public class LeverController : MonoBehaviour {
             if(newAngle != goalHinge.angle) {
                 goalHinge.SetAngle(newAngle);
             }
+        }
+    }
+
+    //WIP
+    private void UpdateFactors() {
+        for(int i = 0; i < numFactors; ++i) {
+            WarmingFactor factor = factors[i];
         }
     }
 }
