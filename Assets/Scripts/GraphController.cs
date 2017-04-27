@@ -17,6 +17,7 @@ public class GraphController : MonoBehaviour {
     public const float goalYear = 2100;
     public const float lowestTemp = 37.0f;
     public const float highestTemp = 45.0f;
+    public const float idealTemperature = 38.5f;
     private float? goalTemp;
 
     public string dataPath;
@@ -46,8 +47,11 @@ public class GraphController : MonoBehaviour {
         earthHalo.GetComponent<MeshRenderer>().material.SetColor("_Color", color);
     }   
 
-    public float? GetGoalTemperature() {
-        return goalTemp;
+    public float GetGoalTemperature() {
+        if (goalTemp == null) {
+            return highestTemp;
+        }
+        return goalTemp.Value;
     }
 
     public void SetGoalTemperature(float newGoalTemperature) {

@@ -39,7 +39,9 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
     private int m_numInstancesCreated = 0;
     private List<PPRowData> rows = new List<PPRowData>();
     private double? oldGoalTemp = null;
-    private List<PPRowData> filteredRows;
+    private List<PPRowData> filteredRows;   
+
+    private float carbonToRemove = 0f;
 
     //Register as the TableView's delegate (required) and data source (optional)
     //to receive the calls
@@ -103,30 +105,37 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
         return cell;
     }
 
-    private List<PPRowData> GetFilteredRows() {        
-        double? goalTemperature = (double?)graphController.GetGoalTemperature();
-        if(goalTemperature != null && (oldGoalTemp == null || oldGoalTemp != goalTemperature)) {
-            oldGoalTemp = goalTemperature;   
-            rows.Sort();
-            rows.Reverse();
+    private List<PPRowData> GetFilteredRows() {
+        rows.Sort();
+        rows.Reverse();
 
-            //TODO: Move this somewhere more global
-            const double idealTemperature = 38.5;
+        float carbonRemoved = 0;
 
-            double threshold = System.Math.Max(-3333333000.0 * (goalTemperature.Value - idealTemperature) + 16666670000.0, 0);
-            double carbonRemoved = 0;
-
-            filteredRows = new List<PPRowData>();
-            foreach(PPRowData row in rows) {
-                if(carbonRemoved >= System.Math.Abs(threshold)) {
-                    break;
-                }                
-                filteredRows.Add(row);
-                carbonRemoved += (double)row.pp_tonsCarbon;
+        filteredRows = new List<PPRowData>();
+        foreach(PPRowData row in rows) {
+            if(carbonRemoved >= carbonToRemove) {
+                break;
             }
-        }        
+            filteredRows.Add(row);
+            carbonRemoved += row.pp_tonsCarbon;
+        }
+
         return filteredRows;
     }
 
     #endregion
+
+    public float UpdatePowerPlants(float percentage, float maxCarbonThatCanBeRemoved) {
+        float carbonRemoved = 0f;
+        
+        foreach(PPRowData row in rows) {
+            if(carbonRemoved >= maxCarbonThatCanBeRemoved * percentage) {
+                break;
+            }
+            carbonRemoved += row.pp_tonsCarbon;
+        }
+
+        carbonToRemove = carbonRemoved;
+        return carbonRemoved;
+    }
 }

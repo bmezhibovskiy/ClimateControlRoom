@@ -25,7 +25,6 @@ public class RoomController : MonoBehaviour {
         float xSpeedOffset = 0.0f;
         if(xSpeedSliderGrabbable.GetIsGrabbed()) {
             xSpeedOffset = Mathf.Lerp(minDPS, maxDPS, xSpeedSlider.percentage);
-            Debug.Log("X: " + xSpeedSlider.percentage);
         }
         xSpeedSlider.SetSpring();
         transform.Rotate(Vector3.right * (xSpeedOffset + degreesPerSecond) * Time.deltaTime);
@@ -33,7 +32,6 @@ public class RoomController : MonoBehaviour {
         float zSpeedOffset = 0.0f;
         if(zSpeedSliderGrabbable.GetIsGrabbed()) {
             zSpeedOffset = Mathf.Lerp(minDPS, maxDPS, zSpeedSlider.percentage);
-            Debug.Log("Z: " + zSpeedSlider.percentage);
         }
         zSpeedSlider.SetSpring();
         transform.Rotate(Vector3.forward * (zSpeedOffset + degreesPerSecond) * Time.deltaTime);

@@ -22,7 +22,16 @@ public class CarbonTaxController : MonoBehaviour {
     }
 
     public void SetTax(float newTax) {
-        tax = System.Math.Max(newTax, 0);
+        tax = newTax;
         carbonTaxText.text = tax.ToString("C");
+    }
+
+    public float UpdateTax(float percentage, float maxCarbonThatCanBeRemoved) {
+        float adjustedMaxTax = Mathf.Clamp((float)(0.0000054*(double)maxCarbonThatCanBeRemoved - 4.0), minTax, maxTax);
+        float newTax = Mathf.Clamp(Mathf.Lerp(minTax, maxTax, percentage), minTax, adjustedMaxTax);
+        if(newTax != GetTax()) {
+            SetTax(newTax);
+        }
+        return 182926.8f * GetTax() + 813008.1f;
     }
 }
