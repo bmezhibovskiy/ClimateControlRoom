@@ -32,6 +32,7 @@ public class CarbonTaxController : MonoBehaviour {
         if(newTax != GetTax()) {
             SetTax(newTax);
         }
-        return 182926.8f * GetTax() + 813008.1f;
+        float kTonsCO2Removed = 182926.8f * GetTax() + 813008.1f;
+        return kTonsCO2Removed * 1000f;
     }
 }

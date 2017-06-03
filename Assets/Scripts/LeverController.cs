@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct WarmingFactor: System.IComparable<WarmingFactor> {
+public struct WarmingFactor : System.IComparable<WarmingFactor> {
     public string type;
     public int priority;
     public VRBasics_Lever lever;
@@ -23,7 +23,7 @@ public struct WarmingFactor: System.IComparable<WarmingFactor> {
     }
 }
 
-public class LeverController: MonoBehaviour {
+public class LeverController : MonoBehaviour {
 
     public CarbonTaxController carbonTaxController;
     public PowerPlantTableController powerPlantController;
@@ -54,31 +54,20 @@ public class LeverController: MonoBehaviour {
 
         factors = new List<WarmingFactor>(numFactors);
         factors.Add(new WarmingFactor("tax", taxPriority, taxLever, taxLeverGrabbable, taxHinge, (float carbonAlreadyRemoved) => {
-            if(taxLeverGrabbable.GetIsGrabbed()) {
-                const float maxCO2TonsPerYear = 13333333333f;
-                float anomaly = graphController.GetGoalTemperature() - GraphController.idealTemperature;
-                float maxCO2TonsPerYearToRemove = (-3333333f * anomaly + 16666670f) * 1000f;
-                return carbonTaxController.UpdateTax(taxHinge.percentage, Mathf.Min(maxCO2TonsPerYearToRemove - carbonAlreadyRemoved, maxCO2TonsPerYear));
-            }
-
-            return 0f;
+            const float maxCO2TonsPerYearCausedByNoTax = 13333333333f; //~13B            
+            return carbonTaxController.UpdateTax(taxHinge.percentage, Mathf.Min(TotalTonsOfCO2InAtmospherePerYear() - carbonAlreadyRemoved, maxCO2TonsPerYearCausedByNoTax));
         }));
         factors.Add(new WarmingFactor("coal", coalPriority, coalLever, coalLeverGrabbable, coalHinge, (float carbonAlreadyRemoved) => {
-            if(coalLeverGrabbable.GetIsGrabbed()) {
-                const float maxCO2TonsPerYear = 7143416583f;
-                float anomaly = graphController.GetGoalTemperature() - GraphController.idealTemperature;
-                float maxCO2TonsPerYearToRemove = (-3333333f * anomaly + 16666670f) * 1000f;
-                return powerPlantController.UpdatePowerPlants(coalHinge.percentage, Mathf.Min(maxCO2TonsPerYearToRemove - carbonAlreadyRemoved, maxCO2TonsPerYear));
-            }
-            return 0f;
+            const float maxCO2TonsPerYearEmittedByCoal = 7143416583f; //~7B                
+            return powerPlantController.UpdatePowerPlants(coalHinge.percentage, Mathf.Min(TotalTonsOfCO2InAtmospherePerYear() - carbonAlreadyRemoved, maxCO2TonsPerYearEmittedByCoal));
         }));
         factors.Sort();
     }
 
     void LateUpdate() {
-        if(goalLeverGrabbable.GetIsGrabbed()) {
+        if (goalLeverGrabbable.GetIsGrabbed()) {
             float newGoalTemperature = Mathf.Lerp(GraphController.lowestTemp, GraphController.highestTemp, goalHinge.percentage);
-            if(newGoalTemperature != graphController.GetGoalTemperature()) {
+            if (newGoalTemperature != graphController.GetGoalTemperature()) {
                 graphController.SetGoalTemperature(newGoalTemperature);
             }
         }
@@ -87,9 +76,20 @@ public class LeverController: MonoBehaviour {
 
     private void UpdateFactors() {
         float carbonRemoved = 0f;
-        for(int i = 0; i < numFactors; ++i) {
+        for (int i = 0; i < numFactors; ++i) {
             WarmingFactor factor = factors[i];
             carbonRemoved += factor.update(carbonRemoved);
         }
+        graphController.SetProjectedTemperature(NewProjectedTemperature(carbonRemoved));
+    }
+
+    private float TotalTonsOfCO2InAtmospherePerYear() {
+        float anomaly = graphController.GetGoalTemperature() - GraphController.idealTemperature;
+        return (-3333333f * anomaly + 16666670f) * 1000f;
+    }
+
+    //Approximated by linear regression
+    private float NewProjectedTemperature(float tonsOfCO2RemovedPerYear) {
+        return GraphController.idealTemperature + -3e-10f * tonsOfCO2RemovedPerYear + 5.0f;
     }
 }
