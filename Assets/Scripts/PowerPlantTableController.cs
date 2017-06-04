@@ -29,7 +29,7 @@ class PPRowData : System.IEquatable<PPRowData>, System.IComparable<PPRowData> {
 }
 
 //An example implementation of a class that communicates with a TableView
-public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
+public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource, IPickable {
     public PowerPlantCell m_cellPrefab;
     public TableView m_tableView;
     public GraphController graphController;
@@ -42,6 +42,8 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
     private List<PPRowData> filteredRows;   
 
     private float carbonToRemove = 0f;
+    private bool picking = false;
+    private float? prevCanvasSpacePickedPointY = null;
 
     //Register as the TableView's delegate (required) and data source (optional)
     //to receive the calls
@@ -70,6 +72,13 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
 
     void Update() {
         m_tableView.ReloadData();        
+    }
+    
+    void LateUpdate() {
+        if (!picking) {
+            prevCanvasSpacePickedPointY = null;
+        }
+        picking = false;
     }
 
     #region ITableViewDataSource
@@ -137,5 +146,18 @@ public class PowerPlantTableController: MonoBehaviour, ITableViewDataSource {
 
         carbonToRemove = carbonRemoved;
         return carbonRemoved;
+    }
+
+    
+
+    public void Pick(Vector3 worldSpacePickPoint) {
+        Vector3 canvasSpacePoint = transform.parent.InverseTransformPoint(worldSpacePickPoint);
+        float delta = 0f;
+        if (prevCanvasSpacePickedPointY != null) {
+            delta = canvasSpacePoint.y - prevCanvasSpacePickedPointY.Value;
+        }
+        prevCanvasSpacePickedPointY = canvasSpacePoint.y;
+        m_tableView.scrollY += delta;
+        picking = true;
     }
 }
